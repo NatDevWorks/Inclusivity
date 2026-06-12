@@ -1,3 +1,29 @@
-﻿<resources>
-    <string name="app_name">Aide Urgence</string>
+<resources>
+    <string name="app_name">Suivi Fitness Accessible</string>
+    <string name="title">Suivi Fitness Accessible</string>
+    <string name="language">Langue</string>
+    <string name="accessibility">Accessibilite</string>
+    <string name="settings">Parametres</string>
+    <string name="hide_settings">Masquer parametres</string>
+    <string name="stats">Aujourdhui</string>
+    <string name="workout">Plan sportif</string>
+    <string name="large">Grand texte</string>
+    <string name="contrast">Contraste eleve</string>
+    <string name="english">Anglais</string>
+    <string name="spanish">Espagnol</string>
+    <string name="french">Francais</string>
+    <string name="add_steps">+500 pas</string>
+    <string name="sub_steps">-500 pas</string>
+    <string name="add_calories">+100 calories</string>
+    <string name="sub_calories">-100 calories</string>
+    <string name="add_water">+1 eau</string>
+    <string name="sub_water">-1 eau</string>
+    <string name="save_plan">Enregistrer</string>
+    <string name="delete_plan">Supprimer</string>
+    <string name="steps">Pas</string>
+    <string name="calories">Calories mangees</string>
+    <string name="water">Eau</string>
+    <string name="plan_empty">Aucun plan enregistre.</string>
+    <string name="plan_hint">Ecris ton plan</string>
 </resources>
+

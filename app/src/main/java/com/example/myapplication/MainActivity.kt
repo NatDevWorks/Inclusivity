@@ -1,7 +1,6 @@
 package com.example.emergencyhelper
 
 import android.app.Activity
-import android.content.pm.PackageManager
 import android.graphics.Color
 import android.graphics.Typeface
 import android.graphics.drawable.GradientDrawable
@@ -17,6 +16,7 @@ import android.widget.LinearLayout
 import android.widget.ScrollView
 import android.widget.Switch
 import android.widget.TextView
+import java.util.Locale
 
 class MainActivity : Activity() {
     private lateinit var scrollView: ScrollView
@@ -47,90 +47,6 @@ class MainActivity : Activity() {
     private var water = 0
     private var workoutPlan = ""
     private var settingsOpen = false
-
-    private val copy = mapOf(
-        "en" to mapOf(
-            "title" to "Accessible Fitness Tracker",
-            "language" to "Language",
-            "accessibility" to "Accessibility",
-            "settings" to "Settings",
-            "hide_settings" to "Hide settings",
-            "stats" to "Today",
-            "workout" to "Workout Plan",
-            "large" to "Large text",
-            "contrast" to "High contrast",
-            "english" to "English",
-            "spanish" to "Spanish",
-            "french" to "French",
-            "add_steps" to "+500 steps",
-            "sub_steps" to "-500 steps",
-            "add_calories" to "+100 calories",
-            "sub_calories" to "-100 calories",
-            "add_water" to "+1 water",
-            "sub_water" to "-1 water",
-            "save_plan" to "Save plan",
-            "delete_plan" to "Delete task",
-            "steps" to "Steps",
-            "calories" to "Calories eaten",
-            "water" to "Water",
-            "plan_empty" to "No workout plan saved yet.",
-            "plan_hint" to "Type your workout plan"
-        ),
-        "es" to mapOf(
-            "title" to "Rastreador Fisico Accesible",
-            "language" to "Idioma",
-            "accessibility" to "Accesibilidad",
-            "settings" to "Ajustes",
-            "hide_settings" to "Ocultar ajustes",
-            "stats" to "Hoy",
-            "workout" to "Plan de ejercicio",
-            "large" to "Texto grande",
-            "contrast" to "Alto contraste",
-            "english" to "Ingles",
-            "spanish" to "Espanol",
-            "french" to "Frances",
-            "add_steps" to "+500 pasos",
-            "sub_steps" to "-500 pasos",
-            "add_calories" to "+100 calorias",
-            "sub_calories" to "-100 calorias",
-            "add_water" to "+1 agua",
-            "sub_water" to "-1 agua",
-            "save_plan" to "Guardar plan",
-            "delete_plan" to "Borrar tarea",
-            "steps" to "Pasos",
-            "calories" to "Calorias comidas",
-            "water" to "Agua",
-            "plan_empty" to "No hay plan guardado.",
-            "plan_hint" to "Escribe tu plan"
-        ),
-        "fr" to mapOf(
-            "title" to "Suivi Fitness Accessible",
-            "language" to "Langue",
-            "accessibility" to "Accessibilite",
-            "settings" to "Parametres",
-            "hide_settings" to "Masquer parametres",
-            "stats" to "Aujourd'hui",
-            "workout" to "Plan sportif",
-            "large" to "Grand texte",
-            "contrast" to "Contraste eleve",
-            "english" to "Anglais",
-            "spanish" to "Espagnol",
-            "french" to "Francais",
-            "add_steps" to "+500 pas",
-            "sub_steps" to "-500 pas",
-            "add_calories" to "+100 calories",
-            "sub_calories" to "-100 calories",
-            "add_water" to "+1 eau",
-            "sub_water" to "-1 eau",
-            "save_plan" to "Enregistrer",
-            "delete_plan" to "Supprimer",
-            "steps" to "Pas",
-            "calories" to "Calories mangees",
-            "water" to "Eau",
-            "plan_empty" to "Aucun plan enregistre.",
-            "plan_hint" to "Ecris ton plan"
-        )
-    )
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -207,18 +123,18 @@ class MainActivity : Activity() {
         statsColumn.addView(statsHeading)
         statsColumn.addView(statCard(stepsText, Color.rgb(219, 234, 254)))
         statsColumn.addView(actionRow(listOf(
-            actionButton("add_steps") { steps += 500; updateStats() },
-            actionButton("sub_steps") { steps = (steps - 500).coerceAtLeast(0); updateStats() }
+            actionButton("sub_steps") { steps = (steps - 500).coerceAtLeast(0); updateStats() },
+            actionButton("add_steps") { steps += 500; updateStats() }
         )))
         statsColumn.addView(statCard(caloriesText, Color.rgb(220, 252, 231)))
         statsColumn.addView(actionRow(listOf(
-            actionButton("add_calories") { caloriesEaten += 100; updateStats() },
-            actionButton("sub_calories") { caloriesEaten = (caloriesEaten - 100).coerceAtLeast(0); updateStats() }
+            actionButton("sub_calories") { caloriesEaten = (caloriesEaten - 100).coerceAtLeast(0); updateStats() },
+            actionButton("add_calories") { caloriesEaten += 100; updateStats() }
         )))
         statsColumn.addView(statCard(waterText, Color.rgb(224, 242, 254)))
         statsColumn.addView(actionRow(listOf(
-            actionButton("add_water") { water += 1; updateStats() },
-            actionButton("sub_water") { water = (water - 1).coerceAtLeast(0); updateStats() }
+            actionButton("sub_water") { water = (water - 1).coerceAtLeast(0); updateStats() },
+            actionButton("add_water") { water += 1; updateStats() }
         )))
         statsColumn.addView(spacer(14))
         statsColumn.addView(workoutHeading)
@@ -346,18 +262,11 @@ class MainActivity : Activity() {
 
     private fun detectedDeviceMode(): String {
         val config = resources.configuration
-        val widthDp = config.screenWidthDp
-        val heightDp = config.screenHeightDp
-        val smallestWidthDp = config.smallestScreenWidthDp
-        val isWatch = packageManager.hasSystemFeature(PackageManager.FEATURE_WATCH) ||
-            (widthDp <= 320 && heightDp <= 320)
-        val isTablet = smallestWidthDp >= 600 || widthDp >= 720
+        return if (config.smallestScreenWidthDp >= 600 || config.screenWidthDp >= 720) "tablet" else "phone"
+    }
 
-        return when {
-            isWatch -> "watch"
-            isTablet -> "tablet"
-            else -> "phone"
-        }
+    private fun setAppLocale(languageCode: String) {
+        Locale.setDefault(Locale(languageCode))
     }
 
     private fun column(): LinearLayout = LinearLayout(this).apply {
@@ -436,9 +345,19 @@ class MainActivity : Activity() {
         }
     }
 
-    private fun text(key: String): String = copy[language]?.get(key) ?: copy.getValue("en").getValue(key)
+    private fun text(key: String): String {
+        val id = resources.getIdentifier(key, "string", packageName)
+        if (id == 0) return key
+        val config = resources.configuration
+        config.setLocale(Locale(language))
+        return createConfigurationContext(config).getString(id)
+    }
 
     private fun dp(value: Int): Int = (value * resources.displayMetrics.density).toInt()
 }
+
+
+
+
 
 

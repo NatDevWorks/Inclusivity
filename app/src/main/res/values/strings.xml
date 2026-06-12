@@ -1,3 +1,28 @@
-﻿<resources>
-    <string name="app_name">Emergency Helper</string>
+<resources>
+    <string name="app_name">Accessible Fitness Tracker</string>
+    <string name="title">Accessible Fitness Tracker</string>
+    <string name="language">Language</string>
+    <string name="accessibility">Accessibility</string>
+    <string name="settings">Settings</string>
+    <string name="hide_settings">Hide settings</string>
+    <string name="stats">Today</string>
+    <string name="workout">Workout Plan</string>
+    <string name="large">Large text</string>
+    <string name="contrast">High contrast</string>
+    <string name="english">English</string>
+    <string name="spanish">Spanish</string>
+    <string name="french">French</string>
+    <string name="add_steps">+500 steps</string>
+    <string name="sub_steps">-500 steps</string>
+    <string name="add_calories">+100 calories</string>
+    <string name="sub_calories">-100 calories</string>
+    <string name="add_water">+1 water</string>
+    <string name="sub_water">-1 water</string>
+    <string name="save_plan">Save plan</string>
+    <string name="delete_plan">Delete task</string>
+    <string name="steps">Steps</string>
+    <string name="calories">Calories eaten</string>
+    <string name="water">Water</string>
+    <string name="plan_empty">No workout plan saved yet.</string>
+    <string name="plan_hint">Type your workout plan</string>
 </resources>

@@ -1,3 +1,28 @@
-﻿<resources>
-    <string name="app_name">Ayuda de Emergencia</string>
+<resources>
+    <string name="app_name">Rastreador Fisico Accesible</string>
+    <string name="title">Rastreador Fisico Accesible</string>
+    <string name="language">Idioma</string>
+    <string name="accessibility">Accesibilidad</string>
+    <string name="settings">Ajustes</string>
+    <string name="hide_settings">Ocultar ajustes</string>
+    <string name="stats">Hoy</string>
+    <string name="workout">Plan de ejercicio</string>
+    <string name="large">Texto grande</string>
+    <string name="contrast">Alto contraste</string>
+    <string name="english">Ingles</string>
+    <string name="spanish">Espanol</string>
+    <string name="french">Frances</string>
+    <string name="add_steps">+500 pasos</string>
+    <string name="sub_steps">-500 pasos</string>
+    <string name="add_calories">+100 calorias</string>
+    <string name="sub_calories">-100 calorias</string>
+    <string name="add_water">+1 agua</string>
+    <string name="sub_water">-1 agua</string>
+    <string name="save_plan">Guardar plan</string>
+    <string name="delete_plan">Borrar tarea</string>
+    <string name="steps">Pasos</string>
+    <string name="calories">Calorias comidas</string>
+    <string name="water">Agua</string>
+    <string name="plan_empty">No hay plan guardado.</string>
+    <string name="plan_hint">Escribe tu plan</string>
 </resources>
