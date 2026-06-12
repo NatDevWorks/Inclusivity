@@ -1,15 +1,18 @@
-﻿package com.example.emergencyhelper
+package com.example.emergencyhelper
 
 import android.app.Activity
-import android.content.res.Configuration
+import android.content.pm.PackageManager
 import android.graphics.Color
 import android.graphics.Typeface
+import android.graphics.drawable.GradientDrawable
 import android.os.Bundle
+import android.text.InputType
 import android.util.TypedValue
 import android.view.Gravity
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Button
+import android.widget.EditText
 import android.widget.LinearLayout
 import android.widget.ScrollView
 import android.widget.Switch
@@ -19,164 +22,226 @@ class MainActivity : Activity() {
     private lateinit var scrollView: ScrollView
     private lateinit var mainLayout: LinearLayout
     private lateinit var titleText: TextView
-    private lateinit var subtitleText: TextView
     private lateinit var languageHeading: TextView
     private lateinit var accessibilityHeading: TextView
-    private lateinit var phraseHeading: TextView
-    private lateinit var statusText: TextView
-    private lateinit var outputText: TextView
+    private lateinit var statsHeading: TextView
+    private lateinit var workoutHeading: TextView
+    private lateinit var stepsText: TextView
+    private lateinit var caloriesText: TextView
+    private lateinit var waterText: TextView
+    private lateinit var workoutText: TextView
+    private lateinit var workoutInput: EditText
     private lateinit var highContrastSwitch: Switch
     private lateinit var largeTextSwitch: Switch
+    private lateinit var settingsPanel: LinearLayout
 
     private val languageButtons = mutableMapOf<String, Button>()
-    private val phraseButtons = mutableMapOf<String, Button>()
-    private val textViews = mutableListOf<TextView>()
+    private val actionButtons = mutableMapOf<String, Button>()
     private val buttons = mutableListOf<Button>()
+    private val textViews = mutableListOf<TextView>()
 
     private var language = "en"
-    private var selectedPhraseKey: String? = null
+    private var deviceMode = "phone"
+    private var steps = 0
+    private var caloriesEaten = 0
+    private var water = 0
+    private var workoutPlan = ""
+    private var settingsOpen = false
 
     private val copy = mapOf(
         "en" to mapOf(
-            "title" to "Emergency Helper",
-            "subtitle" to "Choose a language, then tap a phrase to show it clearly.",
+            "title" to "Accessible Fitness Tracker",
             "language" to "Language",
             "accessibility" to "Accessibility",
-            "phrases" to "Emergency Phrases",
-            "ready" to "Ready. Select a phrase.",
-            "selected" to "Phrase selected.",
+            "settings" to "Settings",
+            "hide_settings" to "Hide settings",
+            "stats" to "Today",
+            "workout" to "Workout Plan",
             "large" to "Large text",
             "contrast" to "High contrast",
             "english" to "English",
             "spanish" to "Spanish",
             "french" to "French",
-            "help" to "I need help",
-            "call" to "Call emergency services",
-            "lost" to "I am lost",
-            "medical" to "I need medical help",
-            "help_phrase" to "I need help.",
-            "call_phrase" to "Please call emergency services.",
-            "lost_phrase" to "I am lost. Please help me find a safe place.",
-            "medical_phrase" to "I need medical help."
+            "add_steps" to "+500 steps",
+            "sub_steps" to "-500 steps",
+            "add_calories" to "+100 calories",
+            "sub_calories" to "-100 calories",
+            "add_water" to "+1 water",
+            "sub_water" to "-1 water",
+            "save_plan" to "Save plan",
+            "delete_plan" to "Delete task",
+            "steps" to "Steps",
+            "calories" to "Calories eaten",
+            "water" to "Water",
+            "plan_empty" to "No workout plan saved yet.",
+            "plan_hint" to "Type your workout plan"
         ),
         "es" to mapOf(
-            "title" to "Ayuda de Emergencia",
-            "subtitle" to "Elige un idioma y toca una frase para mostrarla claramente.",
+            "title" to "Rastreador Fisico Accesible",
             "language" to "Idioma",
             "accessibility" to "Accesibilidad",
-            "phrases" to "Frases de emergencia",
-            "ready" to "Listo. Selecciona una frase.",
-            "selected" to "Frase seleccionada.",
+            "settings" to "Ajustes",
+            "hide_settings" to "Ocultar ajustes",
+            "stats" to "Hoy",
+            "workout" to "Plan de ejercicio",
             "large" to "Texto grande",
             "contrast" to "Alto contraste",
             "english" to "Ingles",
             "spanish" to "Espanol",
             "french" to "Frances",
-            "help" to "Necesito ayuda",
-            "call" to "Llama a emergencias",
-            "lost" to "Estoy perdido",
-            "medical" to "Necesito ayuda medica",
-            "help_phrase" to "Necesito ayuda.",
-            "call_phrase" to "Por favor llama a emergencias.",
-            "lost_phrase" to "Estoy perdido. Ayudame a encontrar un lugar seguro.",
-            "medical_phrase" to "Necesito ayuda medica."
+            "add_steps" to "+500 pasos",
+            "sub_steps" to "-500 pasos",
+            "add_calories" to "+100 calorias",
+            "sub_calories" to "-100 calorias",
+            "add_water" to "+1 agua",
+            "sub_water" to "-1 agua",
+            "save_plan" to "Guardar plan",
+            "delete_plan" to "Borrar tarea",
+            "steps" to "Pasos",
+            "calories" to "Calorias comidas",
+            "water" to "Agua",
+            "plan_empty" to "No hay plan guardado.",
+            "plan_hint" to "Escribe tu plan"
         ),
         "fr" to mapOf(
-            "title" to "Aide Urgence",
-            "subtitle" to "Choisis une langue, puis touche une phrase pour l'afficher clairement.",
+            "title" to "Suivi Fitness Accessible",
             "language" to "Langue",
             "accessibility" to "Accessibilite",
-            "phrases" to "Phrases d'urgence",
-            "ready" to "Pret. Selectionne une phrase.",
-            "selected" to "Phrase selectionnee.",
+            "settings" to "Parametres",
+            "hide_settings" to "Masquer parametres",
+            "stats" to "Aujourd'hui",
+            "workout" to "Plan sportif",
             "large" to "Grand texte",
             "contrast" to "Contraste eleve",
             "english" to "Anglais",
             "spanish" to "Espagnol",
             "french" to "Francais",
-            "help" to "J'ai besoin d'aide",
-            "call" to "Appelle les secours",
-            "lost" to "Je suis perdu",
-            "medical" to "J'ai besoin d'aide medicale",
-            "help_phrase" to "J'ai besoin d'aide.",
-            "call_phrase" to "Appelle les secours, s'il te plait.",
-            "lost_phrase" to "Je suis perdu. Aide-moi a trouver un endroit sur.",
-            "medical_phrase" to "J'ai besoin d'aide medicale."
+            "add_steps" to "+500 pas",
+            "sub_steps" to "-500 pas",
+            "add_calories" to "+100 calories",
+            "sub_calories" to "-100 calories",
+            "add_water" to "+1 eau",
+            "sub_water" to "-1 eau",
+            "save_plan" to "Enregistrer",
+            "delete_plan" to "Supprimer",
+            "steps" to "Pas",
+            "calories" to "Calories mangees",
+            "water" to "Eau",
+            "plan_empty" to "Aucun plan enregistre.",
+            "plan_hint" to "Ecris ton plan"
         )
     )
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        deviceMode = detectedDeviceMode()
         buildInterface()
         updateLanguage()
+        updateStats()
         applyAccessibilityOptions()
     }
 
     private fun buildInterface() {
-        scrollView = ScrollView(this).apply {
-            isFillViewport = true
-        }
-
+        scrollView = ScrollView(this).apply { isFillViewport = true }
         mainLayout = LinearLayout(this).apply {
-            orientation = if (isWideLayout()) LinearLayout.HORIZONTAL else LinearLayout.VERTICAL
+            orientation = if (deviceMode == "tablet") LinearLayout.HORIZONTAL else LinearLayout.VERTICAL
             gravity = Gravity.TOP
-            setPadding(dp(20), dp(20), dp(20), dp(20))
+            val sidePadding = if (deviceMode == "watch") 10 else 22
+            val topPadding = when (deviceMode) {
+                "watch" -> 14
+                "tablet" -> 30
+                else -> 58
+            }
+            setPadding(dp(sidePadding), dp(topPadding), dp(sidePadding), dp(40))
         }
 
-        val introColumn = column()
-        val actionColumn = column()
+        val controlsColumn = column()
+        val statsColumn = column()
 
-        titleText = heading(size = 30f)
-        subtitleText = body()
-        languageHeading = heading(size = 21f)
-        accessibilityHeading = heading(size = 21f)
-        phraseHeading = heading(size = 21f)
-        statusText = body()
-        outputText = heading(size = 26f).apply {
-            gravity = Gravity.CENTER
-            minHeight = dp(120)
-            setPadding(dp(18), dp(18), dp(18), dp(18))
+        titleText = heading(if (deviceMode == "watch") 22f else 29f)
+        languageHeading = heading(19f)
+        accessibilityHeading = heading(19f)
+        statsHeading = heading(22f)
+        workoutHeading = heading(20f)
+        stepsText = statText()
+        caloriesText = statText()
+        waterText = statText()
+        workoutText = body()
+        workoutInput = EditText(this).apply {
+            inputType = InputType.TYPE_CLASS_TEXT or InputType.TYPE_TEXT_FLAG_MULTI_LINE
+            minLines = if (deviceMode == "watch") 1 else 2
+            maxLines = 4
+            setSingleLine(false)
+            setPadding(dp(12), dp(10), dp(12), dp(10))
+            background = roundedBackground(Color.WHITE, 14)
+            textViews.add(this)
         }
 
-        introColumn.addView(titleText)
-        introColumn.addView(subtitleText)
-        introColumn.addView(spacer(18))
-        introColumn.addView(languageHeading)
-        introColumn.addView(buttonRow(listOf(
-            languageButton("en"),
-            languageButton("es"),
-            languageButton("fr")
-        )))
-        introColumn.addView(spacer(18))
-        introColumn.addView(accessibilityHeading)
+        controlsColumn.addView(titleText)
+        controlsColumn.addView(spacer(12))
+        controlsColumn.addView(actionButton("settings") {
+            settingsOpen = !settingsOpen
+            settingsPanel.visibility = if (settingsOpen) View.VISIBLE else View.GONE
+            updateLanguage()
+        })
 
-        largeTextSwitch = Switch(this).apply {
-            setOnCheckedChangeListener { _, _ -> applyAccessibilityOptions() }
+        settingsPanel = column().apply {
+            visibility = if (settingsOpen) View.VISIBLE else View.GONE
+            setPadding(dp(14), dp(12), dp(14), dp(14))
+            background = roundedBackground(Color.rgb(226, 232, 240), 18)
         }
-        highContrastSwitch = Switch(this).apply {
-            setOnCheckedChangeListener { _, _ -> applyAccessibilityOptions() }
-        }
+        settingsPanel.addView(languageHeading)
+        settingsPanel.addView(buttonRow(listOf(languageButton("en"), languageButton("es"), languageButton("fr"))))
+        settingsPanel.addView(spacer(10))
+        settingsPanel.addView(accessibilityHeading)
+
+        largeTextSwitch = Switch(this).apply { setOnCheckedChangeListener { _, _ -> applyAccessibilityOptions() } }
+        highContrastSwitch = Switch(this).apply { setOnCheckedChangeListener { _, _ -> applyAccessibilityOptions() } }
         textViews.add(largeTextSwitch)
         textViews.add(highContrastSwitch)
-        introColumn.addView(largeTextSwitch)
-        introColumn.addView(highContrastSwitch)
+        settingsPanel.addView(largeTextSwitch)
+        settingsPanel.addView(highContrastSwitch)
+        controlsColumn.addView(spacer(10))
+        controlsColumn.addView(settingsPanel)
 
-        actionColumn.addView(phraseHeading)
-        actionColumn.addView(statusText)
-        actionColumn.addView(spacer(12))
-        actionColumn.addView(phraseButton("help"))
-        actionColumn.addView(phraseButton("call"))
-        actionColumn.addView(phraseButton("lost"))
-        actionColumn.addView(phraseButton("medical"))
-        actionColumn.addView(spacer(16))
-        actionColumn.addView(outputText)
+        statsColumn.addView(statsHeading)
+        statsColumn.addView(statCard(stepsText, Color.rgb(219, 234, 254)))
+        statsColumn.addView(actionRow(listOf(
+            actionButton("add_steps") { steps += 500; updateStats() },
+            actionButton("sub_steps") { steps = (steps - 500).coerceAtLeast(0); updateStats() }
+        )))
+        statsColumn.addView(statCard(caloriesText, Color.rgb(220, 252, 231)))
+        statsColumn.addView(actionRow(listOf(
+            actionButton("add_calories") { caloriesEaten += 100; updateStats() },
+            actionButton("sub_calories") { caloriesEaten = (caloriesEaten - 100).coerceAtLeast(0); updateStats() }
+        )))
+        statsColumn.addView(statCard(waterText, Color.rgb(224, 242, 254)))
+        statsColumn.addView(actionRow(listOf(
+            actionButton("add_water") { water += 1; updateStats() },
+            actionButton("sub_water") { water = (water - 1).coerceAtLeast(0); updateStats() }
+        )))
+        statsColumn.addView(spacer(14))
+        statsColumn.addView(workoutHeading)
+        statsColumn.addView(workoutInput)
+        statsColumn.addView(actionRow(listOf(
+            actionButton("save_plan") {
+                workoutPlan = workoutInput.text.toString().trim()
+                updateStats()
+            },
+            actionButton("delete_plan") {
+                workoutPlan = ""
+                workoutInput.setText("")
+                updateStats()
+            }
+        )))
+        statsColumn.addView(workoutText)
 
-        if (isWideLayout()) {
-            mainLayout.addView(introColumn, weightedLayout())
-            mainLayout.addView(actionColumn, weightedLayout())
+        if (deviceMode == "tablet") {
+            mainLayout.addView(controlsColumn, weightedLayout())
+            mainLayout.addView(statsColumn, weightedLayout())
         } else {
-            mainLayout.addView(introColumn)
-            mainLayout.addView(actionColumn)
+            mainLayout.addView(controlsColumn)
+            mainLayout.addView(statsColumn)
         }
 
         scrollView.addView(mainLayout)
@@ -185,89 +250,113 @@ class MainActivity : Activity() {
 
     private fun updateLanguage() {
         titleText.text = text("title")
-        subtitleText.text = text("subtitle")
         languageHeading.text = text("language")
         accessibilityHeading.text = text("accessibility")
-        phraseHeading.text = text("phrases")
+        statsHeading.text = text("stats")
+        workoutHeading.text = text("workout")
+        workoutInput.hint = text("plan_hint")
         largeTextSwitch.text = text("large")
         highContrastSwitch.text = text("contrast")
-        statusText.text = if (selectedPhraseKey == null) text("ready") else text("selected")
 
         languageButtons["en"]?.text = text("english")
         languageButtons["es"]?.text = text("spanish")
         languageButtons["fr"]?.text = text("french")
+        actionButtons["settings"]?.text = text(if (settingsOpen) "hide_settings" else "settings")
+        actionButtons["add_steps"]?.text = text("add_steps")
+        actionButtons["sub_steps"]?.text = text("sub_steps")
+        actionButtons["add_calories"]?.text = text("add_calories")
+        actionButtons["sub_calories"]?.text = text("sub_calories")
+        actionButtons["add_water"]?.text = text("add_water")
+        actionButtons["sub_water"]?.text = text("sub_water")
+        actionButtons["save_plan"]?.text = text("save_plan")
+        actionButtons["delete_plan"]?.text = text("delete_plan")
 
-        phraseButtons["help"]?.text = text("help")
-        phraseButtons["call"]?.text = text("call")
-        phraseButtons["lost"]?.text = text("lost")
-        phraseButtons["medical"]?.text = text("medical")
-
-        selectedPhraseKey?.let { outputText.text = text("${it}_phrase") } ?: run {
-            outputText.text = ""
-        }
-
-        languageButtons.forEach { (_, button) ->
-            button.contentDescription = "${text("language")}: ${button.text}"
-        }
-        phraseButtons.forEach { (_, button) ->
-            button.contentDescription = button.text
-        }
+        buttons.forEach { it.contentDescription = it.text }
+        workoutInput.contentDescription = text("plan_hint")
         largeTextSwitch.contentDescription = text("large")
         highContrastSwitch.contentDescription = text("contrast")
-        outputText.contentDescription = outputText.text
+    }
+
+    private fun updateStats() {
+        stepsText.text = "${text("steps")}: $steps"
+        caloriesText.text = "${text("calories")}: $caloriesEaten"
+        waterText.text = "${text("water")}: $water"
+        workoutText.text = if (workoutPlan.isBlank()) text("plan_empty") else workoutPlan
+        listOf(stepsText, caloriesText, waterText, workoutText).forEach { it.contentDescription = it.text }
     }
 
     private fun applyAccessibilityOptions() {
+        if (!::largeTextSwitch.isInitialized || !::highContrastSwitch.isInitialized) return
         val highContrast = highContrastSwitch.isChecked
         val largeText = largeTextSwitch.isChecked
         val background = if (highContrast) Color.BLACK else Color.rgb(248, 250, 252)
         val foreground = if (highContrast) Color.WHITE else Color.rgb(22, 28, 36)
-        val buttonBackground = if (highContrast) Color.rgb(32, 32, 32) else Color.rgb(218, 231, 255)
-        val outputBackground = if (highContrast) Color.rgb(10, 10, 10) else Color.WHITE
+        val buttonBackground = if (highContrast) Color.rgb(32, 32, 32) else Color.rgb(37, 99, 235)
 
         scrollView.setBackgroundColor(background)
         mainLayout.setBackgroundColor(background)
+        if (::settingsPanel.isInitialized) {
+            settingsPanel.background = roundedBackground(if (highContrast) Color.rgb(20, 20, 20) else Color.rgb(226, 232, 240), 18)
+        }
+        if (::workoutInput.isInitialized) {
+            workoutInput.background = roundedBackground(if (highContrast) Color.rgb(32, 32, 32) else Color.WHITE, 14)
+            workoutInput.setHintTextColor(if (highContrast) Color.LTGRAY else Color.GRAY)
+        }
+        window.statusBarColor = background
+        window.navigationBarColor = background
+        window.decorView.systemUiVisibility = if (highContrast) 0 else View.SYSTEM_UI_FLAG_LIGHT_STATUS_BAR or View.SYSTEM_UI_FLAG_LIGHT_NAVIGATION_BAR
+
         textViews.forEach { view ->
             view.setTextColor(foreground)
             val baseSize = when (view) {
-                titleText -> 30f
-                outputText -> 26f
-                languageHeading, accessibilityHeading, phraseHeading -> 21f
-                else -> 17f
+                titleText -> if (deviceMode == "watch") 22f else 29f
+                statsHeading, workoutHeading -> 21f
+                languageHeading, accessibilityHeading -> 19f
+                stepsText, caloriesText, waterText -> if (deviceMode == "watch") 17f else 20f
+                else -> if (deviceMode == "watch") 14f else 16f
             }
             view.setTextSize(TypedValue.COMPLEX_UNIT_SP, if (largeText) baseSize + 5f else baseSize)
         }
-        outputText.setBackgroundColor(outputBackground)
         buttons.forEach { button ->
-            button.setTextColor(foreground)
-            button.setBackgroundColor(buttonBackground)
-            button.setTextSize(TypedValue.COMPLEX_UNIT_SP, if (largeText) 19f else 16f)
-            button.minHeight = dp(if (largeText) 58 else 48)
+            button.setTextColor(Color.WHITE)
+            button.background = roundedBackground(buttonBackground, 14)
+            button.setTextSize(TypedValue.COMPLEX_UNIT_SP, if (largeText) 16f else 13f)
+            button.minHeight = dp(if (largeText) 56 else 48)
+            button.setPadding(dp(8), 0, dp(8), 0)
         }
     }
 
-    private fun languageButton(code: String): Button {
-        return Button(this).apply {
-            languageButtons[code] = this
-            buttons.add(this)
-            setOnClickListener {
-                language = code
-                updateLanguage()
-                applyAccessibilityOptions()
-            }
+    private fun languageButton(code: String): Button = Button(this).apply {
+        languageButtons[code] = this
+        buttons.add(this)
+        setOnClickListener {
+            language = code
+            updateLanguage()
+            updateStats()
+            applyAccessibilityOptions()
         }
     }
 
-    private fun phraseButton(key: String): Button {
-        return Button(this).apply {
-            phraseButtons[key] = this
-            buttons.add(this)
-            setAllCaps(false)
-            setOnClickListener {
-                selectedPhraseKey = key
-                updateLanguage()
-                applyAccessibilityOptions()
-            }
+    private fun actionButton(key: String, action: () -> Unit): Button = Button(this).apply {
+        actionButtons[key] = this
+        buttons.add(this)
+        setAllCaps(false)
+        setOnClickListener { action() }
+    }
+
+    private fun detectedDeviceMode(): String {
+        val config = resources.configuration
+        val widthDp = config.screenWidthDp
+        val heightDp = config.screenHeightDp
+        val smallestWidthDp = config.smallestScreenWidthDp
+        val isWatch = packageManager.hasSystemFeature(PackageManager.FEATURE_WATCH) ||
+            (widthDp <= 320 && heightDp <= 320)
+        val isTablet = smallestWidthDp >= 600 || widthDp >= 720
+
+        return when {
+            isWatch -> "watch"
+            isTablet -> "tablet"
+            else -> "phone"
         }
     }
 
@@ -276,11 +365,37 @@ class MainActivity : Activity() {
         setPadding(dp(6), dp(6), dp(6), dp(6))
     }
 
-    private fun buttonRow(buttonsInRow: List<Button>): LinearLayout = LinearLayout(this).apply {
-        orientation = if (isWideLayout()) LinearLayout.VERTICAL else LinearLayout.HORIZONTAL
-        buttonsInRow.forEach { button ->
-            addView(button, LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT, 1f).apply {
-                setMargins(dp(3), dp(3), dp(3), dp(3))
+    private fun actionRow(rowButtons: List<Button>): LinearLayout = LinearLayout(this).apply {
+        orientation = if (deviceMode == "watch") LinearLayout.VERTICAL else LinearLayout.HORIZONTAL
+        rowButtons.forEach { button ->
+            val width = if (deviceMode == "watch") ViewGroup.LayoutParams.MATCH_PARENT else 0
+            val weight = if (deviceMode == "watch") 0f else 1f
+            addView(button, LinearLayout.LayoutParams(width, ViewGroup.LayoutParams.WRAP_CONTENT, weight).apply {
+                setMargins(dp(4), dp(4), dp(4), dp(4))
+            })
+        }
+    }
+
+    private fun statCard(content: TextView, color: Int): LinearLayout = LinearLayout(this).apply {
+        orientation = LinearLayout.VERTICAL
+        setPadding(dp(10), dp(8), dp(10), dp(8))
+        background = roundedBackground(color, 16)
+        addView(content)
+        layoutParams = LinearLayout.LayoutParams(
+            ViewGroup.LayoutParams.MATCH_PARENT,
+            ViewGroup.LayoutParams.WRAP_CONTENT
+        ).apply {
+            setMargins(0, dp(4), 0, dp(6))
+        }
+    }
+
+    private fun buttonRow(rowButtons: List<Button>): LinearLayout = LinearLayout(this).apply {
+        orientation = if (deviceMode == "watch") LinearLayout.VERTICAL else LinearLayout.HORIZONTAL
+        rowButtons.forEach { button ->
+            val width = if (deviceMode == "watch") ViewGroup.LayoutParams.MATCH_PARENT else 0
+            val weight = if (deviceMode == "watch") 0f else 1f
+            addView(button, LinearLayout.LayoutParams(width, ViewGroup.LayoutParams.WRAP_CONTENT, weight).apply {
+                setMargins(dp(4), dp(4), dp(4), dp(4))
             })
         }
     }
@@ -288,14 +403,27 @@ class MainActivity : Activity() {
     private fun heading(size: Float): TextView = TextView(this).apply {
         setTypeface(typeface, Typeface.BOLD)
         setTextSize(TypedValue.COMPLEX_UNIT_SP, size)
-        setPadding(0, dp(6), 0, dp(6))
+        setPadding(0, dp(5), 0, dp(5))
         textViews.add(this)
     }
 
     private fun body(): TextView = TextView(this).apply {
-        setTextSize(TypedValue.COMPLEX_UNIT_SP, 17f)
-        setPadding(0, dp(4), 0, dp(4))
+        setTextSize(TypedValue.COMPLEX_UNIT_SP, 16f)
+        setPadding(0, dp(6), 0, dp(6))
         textViews.add(this)
+    }
+
+    private fun statText(): TextView = TextView(this).apply {
+        setTypeface(typeface, Typeface.BOLD)
+        setTextSize(TypedValue.COMPLEX_UNIT_SP, 20f)
+        setPadding(dp(12), dp(10), dp(12), dp(10))
+        textViews.add(this)
+    }
+
+    private fun roundedBackground(color: Int, radius: Int): GradientDrawable = GradientDrawable().apply {
+        shape = GradientDrawable.RECTANGLE
+        cornerRadius = dp(radius).toFloat()
+        setColor(color)
     }
 
     private fun spacer(height: Int): View = View(this).apply {
@@ -310,10 +438,7 @@ class MainActivity : Activity() {
 
     private fun text(key: String): String = copy[language]?.get(key) ?: copy.getValue("en").getValue(key)
 
-    private fun isWideLayout(): Boolean {
-        return resources.configuration.orientation == Configuration.ORIENTATION_LANDSCAPE ||
-            resources.configuration.screenWidthDp >= 600
-    }
-
     private fun dp(value: Int): Int = (value * resources.displayMetrics.density).toInt()
 }
+
+
