@@ -153,8 +153,8 @@ class MainActivity : Activity() {
         statsColumn.addView(workoutText)
 
         if (deviceMode == "tablet") {
-            mainLayout.addView(controlsColumn, weightedLayout())
-            mainLayout.addView(statsColumn, weightedLayout())
+            mainLayout.addView(controlsColumn, weightedLayout(0.85f))
+            mainLayout.addView(statsColumn, weightedLayout(1.65f))
         } else {
             mainLayout.addView(controlsColumn)
             mainLayout.addView(statsColumn)
@@ -275,10 +275,11 @@ class MainActivity : Activity() {
     }
 
     private fun actionRow(rowButtons: List<Button>): LinearLayout = LinearLayout(this).apply {
-        orientation = if (deviceMode == "watch") LinearLayout.VERTICAL else LinearLayout.HORIZONTAL
+        val stackButtons = deviceMode == "watch"
+        orientation = if (stackButtons) LinearLayout.VERTICAL else LinearLayout.HORIZONTAL
         rowButtons.forEach { button ->
-            val width = if (deviceMode == "watch") ViewGroup.LayoutParams.MATCH_PARENT else 0
-            val weight = if (deviceMode == "watch") 0f else 1f
+            val width = if (stackButtons) ViewGroup.LayoutParams.MATCH_PARENT else 0
+            val weight = if (stackButtons) 0f else 1f
             addView(button, LinearLayout.LayoutParams(width, ViewGroup.LayoutParams.WRAP_CONTENT, weight).apply {
                 setMargins(dp(4), dp(4), dp(4), dp(4))
             })
@@ -299,10 +300,11 @@ class MainActivity : Activity() {
     }
 
     private fun buttonRow(rowButtons: List<Button>): LinearLayout = LinearLayout(this).apply {
-        orientation = if (deviceMode == "watch") LinearLayout.VERTICAL else LinearLayout.HORIZONTAL
+        val stackButtons = deviceMode == "watch" || deviceMode == "tablet"
+        orientation = if (stackButtons) LinearLayout.VERTICAL else LinearLayout.HORIZONTAL
         rowButtons.forEach { button ->
-            val width = if (deviceMode == "watch") ViewGroup.LayoutParams.MATCH_PARENT else 0
-            val weight = if (deviceMode == "watch") 0f else 1f
+            val width = if (stackButtons) ViewGroup.LayoutParams.MATCH_PARENT else 0
+            val weight = if (stackButtons) 0f else 1f
             addView(button, LinearLayout.LayoutParams(width, ViewGroup.LayoutParams.WRAP_CONTENT, weight).apply {
                 setMargins(dp(4), dp(4), dp(4), dp(4))
             })
@@ -339,8 +341,8 @@ class MainActivity : Activity() {
         layoutParams = LinearLayout.LayoutParams(1, dp(height))
     }
 
-    private fun weightedLayout(): LinearLayout.LayoutParams {
-        return LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT, 1f).apply {
+    private fun weightedLayout(weight: Float = 1f): LinearLayout.LayoutParams {
+        return LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT, weight).apply {
             setMargins(dp(8), dp(8), dp(8), dp(8))
         }
     }
@@ -355,6 +357,8 @@ class MainActivity : Activity() {
 
     private fun dp(value: Int): Int = (value * resources.displayMetrics.density).toInt()
 }
+
+
 
 
 
